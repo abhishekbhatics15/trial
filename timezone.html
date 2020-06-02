@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.3/moment-timezone-with-data.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+                    <input type="datetime-local" id="pickerDateTime" />   
+                    <select id="dropdownTimeZone"></select>
+                    <input type="button" id="btnSubmit" onclick="submitDate()" value="Calculate" />
+                </div>
+				
+				<div class="report">
+                    <label>Browser/Local datetime</label>
+                    <div id="divLocal">
+                    </div>    
+ 
+                    <label>UTC of browser datetime</label>
+                    <div id="divUTC"></div>
+ 
+                    <label>Selected datetime with timezone</label>
+                    <div id="divSelected">
+                    </div>  
+ 
+                    <label>UTC of selected datetime with timezone</label>
+                    <div id="divUTCSelected">
+                    </div>  
+                </div>
+<script>
+function loadTimeZoneList(){   
+    let select = document.getElementById("dropdownTimeZone");
+    select.innerHTML = ""; 
+    let browserTimeZone = moment.tz.guess();
+    let timeZones = moment.tz.names();
+       timeZones.forEach((timeZone) =>{
+       option = document.createElement("option");      
+         option.textContent = `${timeZone} (GMT${moment.tz(timeZone).format('Z')})`; 
+         option.value = timeZone;
+         if (timeZone == browserTimeZone){
+             option.selected = true;
+         }
+         select.appendChild(option);
+       });
+    
+  }
+  function loadDefaultDateTime(){
+        document.getElementById('pickerDateTime').value = moment().format('YYYY-MM-DDTHH:mm');
+    }
+	
+	
+function getUtcValue(localDateTime){
+     return moment(localDateTime).utc();
+}
+ 
+function getSelectedValue(localDateTime, timeZone)
+{
+     return moment.tz(localDateTime,timeZone);
+}
+ 
+function getSelectedUTCValue(localDateTime, timeZone)
+{
+     return moment.tz(localDateTime,timeZone).utc();
+}
+
+const DEFAULT_FORMAT = 'HH:mm'; 
+ 
+ function formatDate(momentDate){
+        return momentDate.format(DEFAULT_FORMAT);
+   }
+   
+   
+function submitDate(){
+ 
+ let localValue = document.getElementById('pickerDateTime').value;
+ let timeZoneValue = document.getElementById("dropdownTimeZone").value;
+ 
+ let local =  document.getElementById('divLocal');
+ local.innerHTML = formatDate(moment(localValue));
+ 
+ let utc =  document.getElementById('divUTC');
+ utc.innerHTML = formatDate(getUtcValue(localValue));
+ 
+ let selected =  document.getElementById('divSelected');
+ selected.innerHTML = formatDate(getSelectedValue(localValue,timeZoneValue));
+ 
+ let utcSelected =  document.getElementById('divUTCSelected');
+ utcSelected.innerHTML = formatDate(getSelectedUTCValue(localValue,timeZoneValue));
+}
+
+function init(){
+        loadDefaultDateTime();
+        loadTimeZoneList();  
+        submitDate();
+    }
+ 
+    init();
+</script>
+</body>
+</html>
